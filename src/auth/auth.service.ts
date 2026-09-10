@@ -114,4 +114,26 @@ export class AuthService {
             throw new UnauthorizedException('Invalid refresh token');
         }
     }
+    async logout(userId: string) {
+        await this.usersService.clearRefreshToken(userId);
+
+        return {
+            message: 'Logged out successfully',
+        };
+    }
+
+    async me(userId: string) {
+        const user = await this.usersService.findById(userId);
+
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            points: user.points,
+        };
+    }
 }
