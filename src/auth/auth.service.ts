@@ -3,8 +3,8 @@ import {
     Injectable,
     UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -54,13 +54,64 @@ export class AuthService {
             email: user.email,
         });
 
+        const refreshToken = await this.jwtService.signAsync(
+            {
+                sub: user.id,
+            },
+            {
+                secret: process.env.JWT_REFRESH_SECRET,
+                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as any,
+            },
+        );
+
+        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+        await this.usersService.updateRefreshToken(
+            user.id,
+            hashedRefreshToken,
+        );
+
         return {
             accessToken,
+            refreshToken,
             user: {
                 id: user.id,
                 email: user.email,
                 name: user.name,
             },
         };
+    }
+    async refresh(refreshToken: string) {
+        try {
+            const payload = await this.jwtService.verifyAsync(refreshToken, {
+                secret: process.env.JWT_REFRESH_SECRET,
+            });
+
+            const user = await this.usersService.findById(payload.sub);
+
+            if (!user || !user.hashedRefreshToken) {
+                throw new UnauthorizedException('Invalid refresh token');
+            }
+
+            const refreshTokenValid = await bcrypt.compare(
+                refreshToken,
+                user.hashedRefreshToken,
+            );
+
+            if (!refreshTokenValid) {
+                throw new UnauthorizedException('Invalid refresh token');
+            }
+
+            const accessToken = await this.jwtService.signAsync({
+                sub: user.id,
+                email: user.email,
+            });
+
+            return {
+                accessToken,
+            };
+        } catch {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
     }
 }
