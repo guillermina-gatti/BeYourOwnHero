@@ -11,9 +11,13 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
-    "types": ["node", "jest"],
+    "types": [
+      "node",
+      "jest"
+    ],
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": ".",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
