@@ -5,12 +5,14 @@ import {
     Post,
     Req,
     UnauthorizedException,
+    UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,6 +41,7 @@ export class AuthController {
     }
 
     @Post('logout')
+    @UseGuards(JwtAuthGuard)
     logout(@Req() req: Request) {
         const userId = req.headers['user-id'];
 
@@ -50,6 +53,7 @@ export class AuthController {
     }
 
     @Get('me')
+    @UseGuards(JwtAuthGuard)
     me(@Req() req: Request) {
         const userId = req.headers['user-id'];
 
