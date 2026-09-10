@@ -1,4 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    Req,
+    UnauthorizedException,
+} from '@nestjs/common';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -28,5 +36,27 @@ export class AuthController {
     @Post('refresh')
     refresh(@Body() refreshDto: RefreshDto) {
         return this.authService.refresh(refreshDto.refreshToken);
+    }
+
+    @Post('logout')
+    logout(@Req() req: Request) {
+        const userId = req.headers['user-id'];
+
+        if (!userId || Array.isArray(userId)) {
+            throw new UnauthorizedException();
+        }
+
+        return this.authService.logout(userId);
+    }
+
+    @Get('me')
+    me(@Req() req: Request) {
+        const userId = req.headers['user-id'];
+
+        if (!userId || Array.isArray(userId)) {
+            throw new UnauthorizedException();
+        }
+
+        return this.authService.me(userId);
     }
 }
