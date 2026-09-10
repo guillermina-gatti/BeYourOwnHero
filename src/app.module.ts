@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { HabitsModule } from './habits/habits.module';
+import { CompletionsModule } from './completions/completions.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { HabitsModule } from './habits/habits.module';
     UsersModule,
     AuthModule,
     HabitsModule,
+    CompletionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
