@@ -8,12 +8,49 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  name         String
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                 String   @id @default(uuid()) @db.Uuid
+  email              String   @unique
+  passwordHash       String   @map("password_hash")
+  name               String
+  points             Int      @default(0)
+  hashedRefreshToken String?  @map("hashed_refresh_token")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  habits      Habit[]
+  completions Completion[]
 
   @@map("users")
+}
+
+model Habit {
+  id          Int      @id @default(autoincrement())
+  userId      String   @map("user_id") @db.Uuid
+  title       String
+  description String?
+  points      Int      @default(10)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions Completion[]
+
+  @@index([userId])
+  @@map("habits")
+}
+
+model Completion {
+  id           Int      @id @default(autoincrement())
+  habitId      Int      @map("habit_id")
+  userId       String   @map("user_id") @db.Uuid
+  pointsEarned Int      @map("points_earned")
+  completedAt  DateTime @default(now()) @map("completed_at")
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([habitId])
+  @@index([userId])
+  @@map("completions")
 }
