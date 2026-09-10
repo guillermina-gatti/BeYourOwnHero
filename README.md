@@ -153,7 +153,7 @@ The production `DATABASE_URL` must point to the PostgreSQL database used by the 
 
 ## Deploy
 
-**API URL:** [Add deployment URL here]
+**API URL:** https://beyourownhero-api.onrender.com/
 
 ## License
 
